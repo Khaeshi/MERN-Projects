@@ -31,10 +31,10 @@ async function getAuthenticatedUser(): Promise<User | null> {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     console.log('API URL:', apiUrl);
 
-    // ✅ FIX: Use Authorization header instead of Cookie header
+    // Use Authorization header instead of Cookie header
     const res = await fetch(`${apiUrl}/api/auth/me`, {
       headers: {
-        'Authorization': `Bearer ${token}`, // ✅ Changed from Cookie to Authorization
+        'Authorization': `Bearer ${token}`,
       },
       cache: 'no-store',
     });
@@ -58,19 +58,18 @@ async function getAuthenticatedUser(): Promise<User | null> {
 }
 
 export default async function AdminDashboardPage() {
-  // ✅ Fetch user (all try-catch is inside the helper function)
+  // Fetch user (all try-catch is inside the helper function)
   const user = await getAuthenticatedUser();
 
-  // ✅ Redirect if not authenticated or not admin
+  // Redirect if not authenticated or not admin
   // These redirects are NOT inside try-catch, so they work properly
   if (!user) {
     redirect('/Authentication/login');
   }
 
   if (user.role !== 'admin') {
-    redirect('/'); // Redirect non-admins to home
+    redirect('/'); 
   }
 
-  // ✅ Render dashboard for admin users
   return <DashboardClient user={user} />;
 }

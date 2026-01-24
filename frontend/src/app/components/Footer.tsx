@@ -16,7 +16,7 @@ export function Footer() {
                   alt="Cafe Prince Logo"
                   width={50}  
                   height={50}
-                  className="w-full h-full object-contain"  // Ensures it fits
+                  className="w-full h-full object-contain" 
                 />
               </div>
               <div className="text-xl tracking-wider leading-tight">

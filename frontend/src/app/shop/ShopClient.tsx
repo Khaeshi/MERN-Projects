@@ -174,7 +174,7 @@ export default function ShopClient() {
                         <Image
                           src={item.image}
                           alt={item.name}
-                          fill  // ✅ Use fill for responsive sizing
+                          fill 
                           className="object-cover transition-transform duration-500 group-hover:scale-110"
                         />
                       ) : (

@@ -3,7 +3,7 @@
 import { X, CreditCard, DollarSign, Smartphone } from 'lucide-react';
 import Image from 'next/image';
 import { useCart } from '../../context/CartContext';
-import { Button } from '../../components/ui/button';  // Adjust path as needed
+import { Button } from '../../components/ui/button'; 
 
 export function CartModal() {
   const { cart, isModalOpen, updateQuantity, toggleModal, getTotalPrice, clearCart } = useCart();

@@ -19,18 +19,14 @@ export default function LoginPage() {
     console.log('Sending login request:', { email, password });
 
     try {
-      // ✅ Use the login function from @/lib/auth
       const data = await loginUser(email, password);
-      
       console.log('✅ Login successful:', data.user);
-
-      // Redirect based on role (Header will auto-refresh when pathname changes)
       if (data.user.role === 'admin') {
         router.push('/admin/dashboard');
       } else {
         router.push('/shop');
       }
-      router.refresh(); // Refresh server components to update auth state
+      router.refresh();
     } catch (err) {
       setError((err as Error).message || 'Login failed');
     } finally {

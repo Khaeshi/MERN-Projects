@@ -73,7 +73,6 @@ export async function getMe(): Promise<User | null> {
       if (res.status === 401) {
         return null;
       }
-      // Log other errors
       console.error('Get me error: Unexpected status', res.status);
       return null;
     }

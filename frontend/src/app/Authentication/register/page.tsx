@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { register as registerUser } from '../../lib/auth'; // ✅ Import from lib/auth
+import { register as registerUser } from '../../lib/auth';
 
 export default function Register() {
   const [name, setName] = useState('');
@@ -16,12 +16,9 @@ export default function Register() {
     setLoading(true);
 
     try {
-      // ✅ Use the register function from lib/auth
       const data = await registerUser(name, email, password);
       console.log('✅ Registration successful:', data.user);
-      // Optionally redirect to login or show success message
       alert('Registration successful! Please log in.');
-      // router.push('/login'); // Uncomment if you have useRouter imported
     } catch (err) {
       setError((err as Error).message || 'Registration failed');
     } finally {

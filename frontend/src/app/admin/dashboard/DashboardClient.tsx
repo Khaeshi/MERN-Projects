@@ -29,7 +29,6 @@ interface Props {
   user: User; 
 }
 
-// Fetcher function - use credentials: 'include' to send httpOnly cookies
 const fetcher = (url: string) => {
   return fetch(url, {
     credentials: 'include', 
@@ -64,7 +63,7 @@ export default function DashboardClient({ user }: Props) {
         throw new Error('Failed to add item');
       }
 
-      mutate(); // Refresh the menu items
+      mutate(); 
       setNewItem({ name: '', price: 0, image: '', description: '' });
     } catch (error) {
       console.error('Error adding item:', error);
@@ -105,7 +104,6 @@ export default function DashboardClient({ user }: Props) {
     );
   }
 
-  // Render the full dashboard
   return (
     <div className="min-h-screen bg-stone-900">
       {/* Header */}

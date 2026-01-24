@@ -21,7 +21,6 @@ export function Header() {
     pathname.startsWith('/admin/dashboard') ? 'dashboard' : 
     'home';
 
-  // ✅ Memoized fetch function to prevent recreation on every render
   const fetchUser = useCallback(async () => {
     try {
       const userData = await getMe();
@@ -30,22 +29,22 @@ export function Header() {
       setUser(null);
     } finally {
       setIsLoading(false);
-    }
+    } 
   }, []);
 
-  // ✅ Fetch user on mount
+  // Fetch user on mount
   useEffect(() => {
     fetchUser();
   }, [fetchUser]);
 
-  // ✅ Re-fetch when navigating to admin routes or after login redirect
+  // Re-fetch when navigating to admin routes or after login redirect
   useEffect(() => {
     if (pathname.startsWith('/admin') || pathname.startsWith('/shop')) {
       fetchUser();
     }
   }, [pathname, fetchUser]);
 
-  // ✅ Listen for custom event to refresh user (e.g., after login)
+  // Listen for custom event to refresh user (e.g., after login)
   useEffect(() => {
     const handleAuthChange = () => {
       fetchUser();
