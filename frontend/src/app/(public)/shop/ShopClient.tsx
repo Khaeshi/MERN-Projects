@@ -2,16 +2,16 @@
 
 import React from 'react'
 import { useState } from 'react';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../../context/CartContext';
 import useSWR from 'swr';
 import Image from 'next/image';
 import { ShoppingCart, Star, Search, Filter, Plus, Check } from 'lucide-react';
-import { Card, CardContent } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Badge } from '../components/ui/badge';
-import { CartSidebar } from '../components/features/Cart/CartSidebar';  
-import { CartModal } from '../components/features/Cart/CartModal';  
+import { Card, CardContent } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Badge } from '../../components/ui/badge';
+import { CartSidebar } from '../../components/features/Cart/CartSidebar';  
+import { CartModal } from '../../components/features/Cart/CartModal';  
 
 
 interface ApiMenuItem {

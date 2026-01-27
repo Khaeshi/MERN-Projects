@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link  from 'next/link';
-import GoogleLoginButton from '../../components/OAuth/GoogleLoginButton';
+import GoogleLoginButton from '../../components/public/GoogleLoginButton';
 import { login as loginUser } from '../../lib/auth';
 import { useAuth } from '../../context/AuthContext';
 

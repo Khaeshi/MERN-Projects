@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { useCart } from '../../../context/CartContext';
 import { Button } from '../../ui/button'; 
 
-// ✅ Define payment methods array OUTSIDE component
 const paymentMethods = [
   { id: 'cash', icon: DollarSign, label: 'Cash' },
   { id: 'card', icon: CreditCard, label: 'Card' },
@@ -83,7 +82,7 @@ export function CartModal() {
           </div>
         )}
 
-        {/* Payment Methods - ✅ FIXED */}
+        {/* Payment Methods */}
         {cart.length > 0 && (
           <div className="p-4 border-t border-gray-800">
             <h3 className="text-white text-lg font-medium mb-3">Select Payment Method</h3>
@@ -92,7 +91,7 @@ export function CartModal() {
                 const Icon = method.icon;
                 return (
                   <Button 
-                    key={method.id}  // ✅ Now has key
+                    key={method.id}  
                     variant="outline" 
                     className="flex flex-col items-center p-3 bg-white/10 border-white/20 text-white hover:bg-white/20"
                   >
