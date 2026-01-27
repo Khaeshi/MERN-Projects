@@ -1,4 +1,4 @@
-// models/User.js
+// models/user.js
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
@@ -21,7 +21,6 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, 'Please provide a password'],
       minlength: 6,
       select: false
     },
@@ -30,10 +29,33 @@ const userSchema = new mongoose.Schema(
       enum: ['user', 'admin'],
       default: 'user'
     },
-    phone: String,
-    createdAt: {
+    phone: {
+      type: String,
+      trim: true
+    },
+    // OAuth fields
+    googleId: { 
+      type: String, 
+      sparse: true
+    },
+    authProvider: {
+      type: String,
+      enum: ['local', 'google', 'github'],
+      default: 'local'
+    },
+    profilePicture: String,
+    displayName: String,
+    googleRefreshToken: {
+      type: String,
+      select: false
+    },
+    googleAccessToken: {
+      type: String,
+      select: false
+    },
+    tokenExpiry: {
       type: Date,
-      default: Date.now
+      select: false
     }
   },
   {
@@ -41,22 +63,25 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Hash password before saving
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    return next();
+// Indexes
+userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ googleId: 1 }, { sparse: true });
+
+// ==================== NO PRE-SAVE HOOK ====================
+// We hash passwords manually in the auth routes
+// This prevents conflicts with OAuth user creation
+
+// Instance methods
+userSchema.methods.comparePassword = async function(enteredPassword) {
+  if (!this.password) {
+    throw new Error('User does not have a password (OAuth account)');
   }
-
-  console.log('🔐 Hashing password...');
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  console.log('✅ Password hashed successfully');
-  next();
-});
-
-// Method to compare password
-userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
+};
+
+userSchema.methods.isTokenExpired = function() {
+  if (!this.tokenExpiry) return true;
+  return new Date() >= new Date(this.tokenExpiry);
 };
 
 const User = mongoose.model('User', userSchema);

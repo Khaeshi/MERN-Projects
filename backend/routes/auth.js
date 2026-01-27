@@ -1,33 +1,33 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import passport from 'passport';
 import User from '../models/user.js';
-
+import { protect, admin, optionalAuth } from '../middleware/auth.js';
+import generateToken from '../utils/generateToken.js';
 
 const router = express.Router();
 
-// Middleware to verify JWT and role
-import { protect, admin } from '../middleware/auth.js';
-
-// Helper function to set token cookie
+// ==================== HELPER FUNCTIONS ====================
 const setTokenCookie = (res, token) => {
-  res.cookie('token', token, {
-    httpOnly: true,  // Prevents XSS attacks
-    secure: process.env.NODE_ENV === 'production',  // HTTPS only in production
-    sameSite: 'strict',  // CSRF protection
-    maxAge: 30 * 24 * 60 * 60 * 1000,  // 30 days (adjust as needed)
-  });
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    path: '/',
+  };
+  
+  console.log('🍪 Setting cookie with options:', cookieOptions);
+  res.cookie('token', token, cookieOptions);
+  console.log('🍪 Cookie set successfully');
 };
 
-// @route   POST /api/auth/register
-// @access  Public
-router.post('/register', async (req, res) => {
-  console.log('📝 Registration attempt...');
-  console.log('req.body:', req.body);
+// ==================== ROUTES ====================
 
+// @route   POST /api/auth/register
+router.post('/register', async (req, res) => {
   const { name, email, password, phone } = req.body;
 
-  // Enhanced validation
   if (!name || !email || !password) {
     return res.status(400).json({ 
       success: false,
@@ -35,51 +35,29 @@ router.post('/register', async (req, res) => {
     });
   }
 
-  if (typeof name !== 'string' || typeof email !== 'string' || typeof password !== 'string') {
-    return res.status(400).json({ 
-      success: false,
-      message: 'Name, email, and password must be strings' 
-    });
-  }
-
-  if (password.length < 8) {
-    return res.status(400).json({ 
-      success: false,
-      message: 'Password must be at least 8 characters long' 
-    });
-  }
-
   try {
-    // Check if user already exists
-    console.log('🔍 Checking if user exists...');
     const existingUser = await User.findOne({ email });
     
     if (existingUser) {
-      console.log('❌ User already exists:', email);
       return res.status(400).json({ 
         success: false,
         message: 'User already exists with this email' 
       });
     }
 
-    // Hash password and create user
-    console.log('➕ Creating new user...');
     const hashedPassword = await bcrypt.hash(password, 12);
-    const user = new User({ name, email, password: hashedPassword, phone });
+    const user = new User({ 
+      name, 
+      email, 
+      password: hashedPassword, 
+      phone,
+      authProvider: 'local' 
+    });
     await user.save();
 
-    console.log('✅ User created successfully!');
-    console.log('User ID:', user._id);
-
-    // Generate token and set cookie
-    const token = jwt.sign(
-      { id: user._id, role: user.role }, 
-      process.env.JWT_SECRET, 
-      { expiresIn: '30d' }
-    );
+    const token = generateToken(user._id);
     setTokenCookie(res, token);
 
-    // ✅ REMOVED: token from response body (now in cookie)
     res.status(201).json({ 
       success: true,
       message: 'User registered successfully',
@@ -88,99 +66,60 @@ router.post('/register', async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        authProvider: user.authProvider,
         createdAt: user.createdAt
       }
     });
 
   } catch (err) {
     console.error('❌ Registration error:', err);
-    
-    // Handle duplicate key error
-    if (err.code === 11000) {
-      return res.status(400).json({
-        success: false,
-        message: 'User already exists with this email'
-      });
-    }
-
-    // Handle validation errors
-    if (err.name === 'ValidationError') {
-      const messages = Object.values(err.errors).map(e => e.message);
-      return res.status(400).json({
-        success: false,
-        message: messages.join(', ')
-      });
-    }
-
     res.status(500).json({ 
       success: false,
-      message: 'Server error during registration',
-      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+      message: 'Server error during registration'
     });
   }
 });
 
 // @route   POST /api/auth/login
-// @access  Public
 router.post('/login', async (req, res) => {
-  console.log('🔐 Login attempt...');
-  console.log('req.body:', req.body);
-
   const { email, password } = req.body;
 
-  // Validation
-  if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
+  if (!email || !password) {
     return res.status(400).json({ 
       success: false,
-      message: 'Email and password are required and must be strings' 
+      message: 'Email and password are required' 
     });
   }
 
   try {
-    // Find user and explicitly select password field
-    console.log('🔍 Finding user...');
     const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
-      console.log('❌ User not found:', email);
       return res.status(401).json({ 
         success: false,
         message: 'Invalid email or password' 
       });
     }
 
-    // Ensure password exists and is valid
-    if (!user.password || typeof user.password !== 'string') {
-      console.error('User password is invalid:', user.password);
-      return res.status(500).json({ 
+    if (!user.password) {
+      return res.status(400).json({
         success: false,
-        message: 'Server error: Invalid user data' 
+        message: `This account was created using ${user.authProvider}. Please sign in with ${user.authProvider}.`
       });
     }
 
-    // Compare passwords
-    console.log('🔐 Checking password...');
     const isMatch = await bcrypt.compare(password, user.password);
     
     if (!isMatch) {
-      console.log('❌ Invalid password');
       return res.status(401).json({ 
         success: false,
         message: 'Invalid email or password' 
       });
     }
 
-    console.log('✅ Login successful!');
-
-    // Generate token and set cookie
-    const token = jwt.sign(
-      { id: user._id, role: user.role }, 
-      process.env.JWT_SECRET, 
-      { expiresIn: '30d' }
-    );
+    const token = generateToken(user._id, user.role);
     setTokenCookie(res, token);
 
-    // ✅ REMOVED: token from response body (now in cookie)
     res.json({ 
       success: true,
       message: 'Login successful',
@@ -188,7 +127,9 @@ router.post('/login', async (req, res) => {
         id: user._id, 
         name: user.name, 
         email: user.email, 
-        role: user.role 
+        role: user.role,
+        authProvider: user.authProvider,
+        profilePicture: user.profilePicture
       } 
     });
 
@@ -196,27 +137,21 @@ router.post('/login', async (req, res) => {
     console.error('❌ Login error:', err);
     res.status(500).json({ 
       success: false,
-      message: 'Server error during login',
-      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+      message: 'Server error during login'
     });
   }
 });
 
 // @route   POST /api/auth/logout
-// @access  Public
 router.post('/logout', (req, res) => {
   try {
-    console.log('👋 Logout attempt...');
-    
-    // Clear the token cookie
     res.clearCookie('token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict'
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      path: '/',
     });
 
-    console.log('✅ Logged out successfully');
-    
     res.json({ 
       success: true,
       message: 'Logged out successfully' 
@@ -230,40 +165,27 @@ router.post('/logout', (req, res) => {
   }
 });
 
-// @route   GET /api/auth/me
-// @access  Private (requires authentication)
-router.get('/me', protect, async (req, res) => {
-  try {
-    console.log('👤 Get current user...');
-    
-    // req.user is set by the protect middleware
-    const user = await User.findById(req.user.id).select('-password');
-    
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
+// ==================== USER INFO ROUTES ====================
 
-    res.json({
+router.get('/me', optionalAuth, (req, res) => {
+  try {
+    res.status(200).json({
       success: true,
-      user
+      user: req.authUser || null,
     });
   } catch (err) {
-    console.error('❌ Get me error:', err);
+    console.error('❌ Error in /me route:', err);
     res.status(500).json({
       success: false,
-      message: 'Server error'
+      message: 'Server error',
+      user: null
     });
   }
 });
 
-// @route   GET /api/auth/users
-// @access  Public (change to protected later)
-router.get('/users', async (req, res) => {
+router.get('/users', protect, admin, async (req, res) => {
   try {
-    const users = await User.find().select('-password');
+    const users = await User.find().select('-password -googleAccessToken -googleRefreshToken');
     
     res.json({
       success: true,
@@ -274,10 +196,86 @@ router.get('/users', async (req, res) => {
     console.error('Get users error:', err);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: err.message
+      message: 'Server error'
     });
   }
 });
+
+// ==================== GOOGLE OAUTH ROUTES ====================
+
+router.get('/google', (req, res, next) => {
+  console.log('📨 Starting Google OAuth flow...');
+  const prompt = req.query.prompt || 'consent';
+  
+  passport.authenticate('google', { 
+    scope: ['profile', 'email'],
+    prompt: prompt,
+    session: false
+  })(req, res, next);
+});
+
+router.get('/google/callback',
+  (req, res, next) => {
+    console.log('📨 GET /api/auth/google/callback - ENTRY POINT');
+    console.log('Query params:', req.query);
+    console.log('Headers:', req.headers);
+    next();
+  },
+  passport.authenticate('google', { 
+    session: false,
+    failureRedirect: `${process.env.CLIENT_URL}/?error=oauth_failed`
+  }),
+  (req, res) => {
+    console.log('📨 Inside final callback handler');
+    console.log('Response headers sent?', res.headersSent);
+    
+    try {
+      console.log('✅ Google OAuth successful, generating JWT...');
+      
+      if (!req.user) {
+        console.error('❌ No user found in req.user');
+        console.log('Redirecting to:', `${process.env.CLIENT_URL}/?error=no_user`);
+        return res.redirect(`${process.env.CLIENT_URL}/?error=no_user`);
+      }
+      
+      console.log('✅ User found:', {
+        id: req.user._id,
+        email: req.user.email,
+        name: req.user.name
+      });
+      
+      // Generate token
+      console.log('🔑 Generating token...');
+      const token = generateToken(req.user._id);
+      console.log('🔑 Token generated:', token ? 'YES' : 'NO');
+      
+      // Set cookie
+      console.log('🍪 Setting cookie...');
+      setTokenCookie(res, token);
+      
+      const redirectUrl = `${process.env.CLIENT_URL}/auth/success`;
+      console.log('🚀 About to redirect to:', redirectUrl);
+      console.log('CLIENT_URL env var:', process.env.CLIENT_URL);
+      
+      // Check if headers already sent
+      if (res.headersSent) {
+        console.error('❌ Headers already sent! Cannot redirect.');
+        return;
+      }
+      
+      console.log('✅ Calling res.redirect()...');
+      res.redirect(redirectUrl);
+      console.log('✅ res.redirect() called');
+      
+    } catch (err) {
+      console.error('❌ OAuth callback error:', err);
+      console.error('Error stack:', err.stack);
+      
+      if (!res.headersSent) {
+        res.redirect(`${process.env.CLIENT_URL}/?error=server_error`);
+      }
+    }
+  }
+);
 
 export default router;

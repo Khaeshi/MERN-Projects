@@ -1,8 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { login as loginUser } from '../../lib/auth'; 
+import Link  from 'next/link';
+import GoogleLoginButton from '../../components/OAuth/GoogleLoginButton';
+import { login as loginUser } from '../../lib/auth';
+import { useAuth } from '../../context/AuthContext';
+
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -10,23 +14,32 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { checkAuth, user } = useAuth();
+
+  // Redirect if already logged in as admin
+  useEffect(() => {
+    if (user && user.role === 'admin') {
+      router.push('/admin/dashboard');
+    }
+  }, [user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    console.log('Sending login request:', { email, password });
-
     try {
       const data = await loginUser(email, password);
       console.log('✅ Login successful:', data.user);
+      
+      // Re-check auth to update context
+      await checkAuth();
+      
       if (data.user.role === 'admin') {
         router.push('/admin/dashboard');
       } else {
-        router.push('/shop');
+        setError('Access denied. Admin privileges required.');
       }
-      router.refresh();
     } catch (err) {
       setError((err as Error).message || 'Login failed');
     } finally {
@@ -36,8 +49,23 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-stone-900">
-      <div className="w-full max-w-md bg-stone-800 rounded-lg shadow-md p-8 border-stone-700">
-        <h2 className="text-2xl font-bold text-center text-white mb-6">Login</h2>
+      <div className="w-full max-w-md bg-stone-800 rounded-lg shadow-md p-8 border border-stone-700">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-white">Staff Login</h2>
+          <p className="text-stone-400 text-sm mt-1">Access the admin dashboard</p>
+        </div>
+
+        {/* Show Google OAuth for staff too (optional) */}
+        <GoogleLoginButton />
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-stone-600"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-stone-800 text-stone-400">OR</span>
+          </div>
+        </div>
         
         {error && (
           <div className="bg-red-900/20 border border-red-700 text-red-300 px-4 py-3 rounded mb-4">
@@ -56,6 +84,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border border-stone-600 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 bg-stone-700 text-white placeholder-stone-500"
+              placeholder="admin@cafe.com"
               required
             />
           </div>
@@ -70,6 +99,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 border border-stone-600 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 bg-stone-700 text-white placeholder-stone-500"
+              placeholder="••••••••"
               required
             />
           </div>
@@ -77,23 +107,19 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-amber-600 text-white py-2 px-4 rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50"
+            className="w-full bg-amber-600 text-white py-2 px-4 rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 transition-colors"
           >
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
-        <div className="mt-6 text-center">
-          <a href="/forgot-password" className="text-sm text-amber-400 hover:underline">
-            Forgot your password?
-          </a>
-        </div>
-
-        <div className="mt-4 text-center">
-          <span className="text-sm text-stone-400">Don&#39;t have an account? </span>
-          <a href="/register" className="text-sm text-amber-400 hover:underline">
-            Register here
-          </a>
+        <div className="mt-6 pt-6 border-t border-stone-700">
+          <p className="text-sm text-stone-400 text-center">
+            Customer?{' '}
+            <Link href="/" className="text-amber-400 hover:text-amber-300 font-medium">
+              Go to main site
+            </Link>
+          </p>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react'
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import useSWR from 'swr';
@@ -11,6 +12,7 @@ import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import { CartSidebar } from '../components/features/Cart/CartSidebar';  
 import { CartModal } from '../components/features/Cart/CartModal';  
+
 
 interface ApiMenuItem {
   _id: string;
@@ -35,6 +37,7 @@ const fetcher = (url: string) => fetch(url).then(res => {
 });
 
 export default function ShopClient() {
+  console.log('🛒 ShopClient component rendering');
   const { addToCart, getTotalItems, toggleCart } = useCart();  
   const [searchQuery, setSearchQuery] = useState('');
   const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
@@ -56,6 +59,8 @@ export default function ShopClient() {
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  console.log('📦 Filtered items count:', filteredItems.length);
 
   const handleAddToCart = (item: MenuItem) => {
     addToCart(item);
@@ -160,12 +165,12 @@ export default function ShopClient() {
               Showing {filteredItems.length} {filteredItems.length === 1 ? 'item' : 'items'}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredItems.map((item: MenuItem) => {
+              {filteredItems.map((item: MenuItem, index: number) => { 
                 const isAdded = addedItems.has(item.id);
                 
                 return (
                   <Card
-                    key={item.id}
+                    key={`${item.id}-${index}`} 
                     className="group overflow-hidden hover:shadow-2xl transition-all duration-300 border-stone-700 bg-stone-800"
                   >
                     {/* Image Container */}

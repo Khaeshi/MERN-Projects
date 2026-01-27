@@ -1,58 +1,31 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { getMe, logout as logoutUser, type User } from '../lib/auth';
+import { useAuth } from '../context/AuthContext';
 import Image from 'next/image';
 
 const navItems: string[] = ['Home', 'Shop', 'About', 'Contact'];
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const pathname = usePathname();  
   const router = useRouter();
+  
+  // Use AuthContext instead of local state
+  const { user, loading, logout } = useAuth();
 
-  // Determine current page including dashboard
+  // Don't show header on admin pages
+  const isAdminPage = pathname?.startsWith('/admin');
+  
+  if (isAdminPage) return null;
+
+  // Determine current page
   const currentPage: string = 
     pathname === '/shop' ? 'shop' : 
     pathname.startsWith('/admin/dashboard') ? 'dashboard' : 
     'home';
-
-  const fetchUser = useCallback(async () => {
-    try {
-      const userData = await getMe();
-      setUser(userData);
-    } catch (error) {
-      setUser(null);
-    } finally {
-      setIsLoading(false);
-    } 
-  }, []);
-
-  // Fetch user on mount
-  useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
-
-  // Re-fetch when navigating to admin routes or after login redirect
-  useEffect(() => {
-    if (pathname.startsWith('/admin') || pathname.startsWith('/shop')) {
-      fetchUser();
-    }
-  }, [pathname, fetchUser]);
-
-  // Listen for custom event to refresh user (e.g., after login)
-  useEffect(() => {
-    const handleAuthChange = () => {
-      fetchUser();
-    };
-
-    window.addEventListener('auth-change', handleAuthChange);
-    return () => window.removeEventListener('auth-change', handleAuthChange);
-  }, [fetchUser]);
 
   const handleNavClick = (item: string): void => {
     if (item === 'Shop') {
@@ -73,14 +46,23 @@ export function Header() {
 
   const handleLogout = async () => {
     try {
-      await logoutUser();
-      setUser(null);
+      console.log('Header: Logging out...');
+      await logout();
       setIsMobileMenuOpen(false);
+      
       router.push('/');
-      router.refresh();
+      
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 100);
     } catch (error) {
       console.error('Logout failed:', error);
     }
+  };
+
+  const handleLogin = () => {
+    router.push('/admin/login');
+    setIsMobileMenuOpen(false);
   };
 
   return (
@@ -137,24 +119,47 @@ export function Header() {
             );
           })}
 
-          {/* Login Button for Non-Logged-In Users */}
-          {!isLoading && !user && (  
-            <button
-              onClick={() => router.push('/Authentication/login')}
-              className="text-white hover:text-gray-300 transition-colors tracking-wide"
-            >
-              Login
-            </button>
-          )}
-
-          {/* Logout Button for Logged-In Users */}
-          {!isLoading && user && (
-            <button
-              onClick={handleLogout}
-              className="text-white hover:text-gray-300 transition-colors tracking-wide"
-            >
-              Logout
-            </button>
+          {/* User Info & Auth Buttons */}
+          {!loading && (
+            <>
+              {user ? (
+                <div className="flex items-center gap-4">
+                  {/* User Profile */}
+                  <div className="flex items-center gap-2">
+                    {user.profilePicture && (
+                      <Image
+                        src={user.profilePicture}
+                        alt={user.name}
+                        width={32}
+                        height={32}
+                        className="rounded-full"
+                      />
+                    )}
+                    <div className="text-left">
+                      <p className="text-sm font-medium">{user.name}</p>
+                      {user.role === 'admin' && (
+                        <span className="text-xs text-amber-400">Admin</span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Logout Button */}
+                  <button
+                    onClick={handleLogout}
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={handleLogin}
+                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm rounded transition-colors"
+                >
+                  Staff Login
+                </button>
+              )}
+            </>
           )}
         </nav>
 
@@ -172,6 +177,27 @@ export function Header() {
       {isMobileMenuOpen && (
         <nav className="md:hidden text-white text-base">
           <div className="flex flex-col gap-4 pt-4">
+            {/* User Info in Mobile */}
+            {!loading && user && (
+              <div className="flex items-center gap-2 px-2 py-2 border-b border-gray-700">
+                {user.profilePicture && (
+                  <Image
+                    src={user.profilePicture}
+                    alt={user.name}
+                    width={32}
+                    height={32}
+                    className="rounded-full"
+                  />
+                )}
+                <div>
+                  <p className="text-sm font-medium">{user.name}</p>
+                  {user.role === 'admin' && (
+                    <span className="text-xs text-amber-400">Admin</span>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Show Dashboard for Admins in Mobile */}
             {user?.role === 'admin' && (  
               <button
@@ -197,24 +223,25 @@ export function Header() {
               </button>
             ))}
 
-            {/* Login in Mobile for Non-Logged-In Users */}
-            {!isLoading && !user && (  
-              <button
-                onClick={() => { router.push('/Authentication/login'); setIsMobileMenuOpen(false); }}
-                className="text-white hover:text-gray-300 transition-colors tracking-wide px-2 text-left"
-              >
-                Login
-              </button>
-            )}
-
-            {/* Logout in Mobile for Logged-In Users */}
-            {!isLoading && user && (
-              <button
-                onClick={handleLogout}
-                className="text-white hover:text-gray-300 transition-colors tracking-wide px-2 text-left"
-              >
-                Logout
-              </button>
+            {/* Auth Buttons in Mobile */}
+            {!loading && (
+              <>
+                {user ? (
+                  <button
+                    onClick={handleLogout}
+                    className="text-left px-2 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors mx-2"
+                  >
+                    Logout
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleLogin}
+                    className="text-left px-2 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded transition-colors mx-2"
+                  >
+                    Staff Login
+                  </button>
+                )}
+              </>
             )}
           </div>
         </nav>

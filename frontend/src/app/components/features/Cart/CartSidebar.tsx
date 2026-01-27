@@ -34,8 +34,8 @@ export function CartSidebar() {
             <p className="text-white text-center mt-8">Your cart is empty</p>
           ) : (
             <ul className="space-y-4">
-              {cart.map((item) => (
-                <li key={item.id} className="grid grid-cols-[100px_1fr_auto_auto] gap-3 text-white items-center">
+              {cart.map((item, index: number) => (
+                <li key={`${item.id}-${index}`} className="grid grid-cols-[100px_1fr_auto_auto] gap-3 text-white items-center">
                   <Image src={item.image} alt={item.name} width={500} height={500} className="w-full h-20 object-cover" />
                   <div className="text-sm">
                     <div className="font-semibold">{item.name}</div>

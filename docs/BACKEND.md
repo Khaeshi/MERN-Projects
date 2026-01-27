@@ -5,3 +5,8 @@ This document describes the API endpoints for the Cafe Website backend, built wi
 
 [API central route hub is located at Backend Folder](../backend/routes/index.js)
 
+
+OAuth usage on backend:
+```
+passport passport-google-oauth20 express-session
+```

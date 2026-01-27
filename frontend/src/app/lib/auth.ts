@@ -1,86 +1,58 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-}
-
-// ✅ Client-side: Login function
 export async function login(email: string, password: string) {
-  const res = await fetch(`${API_URL}/api/auth/login`, {
+  const response = await fetch(`${API_URL}/api/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    credentials: 'include',
+    credentials: 'include', // Important: include cookies
     body: JSON.stringify({ email, password }),
   });
 
-  const data = await res.json();
+  const data = await response.json();
 
-  if (!res.ok) {
+  if (!data.success) {
     throw new Error(data.message || 'Login failed');
   }
 
   return data;
 }
 
-// ✅ Client-side: Register function
-export async function register(name: string, email: string, password: string) {
-  const res = await fetch(`${API_URL}/api/auth/register`, {
+export async function register(name: string, email: string, password: string, phone?: string) {
+  const response = await fetch(`${API_URL}/api/auth/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    credentials: 'include', 
-    body: JSON.stringify({ name, email, password }),
+    credentials: 'include',
+    body: JSON.stringify({ name, email, password, phone }),
   });
 
-  const data = await res.json();
+  const data = await response.json();
 
-  if (!res.ok) {
+  if (!data.success) {
     throw new Error(data.message || 'Registration failed');
   }
 
   return data;
 }
 
-// ✅ Client-side: Logout function
 export async function logout() {
-  const res = await fetch(`${API_URL}/api/auth/logout`, {
+  const response = await fetch(`${API_URL}/api/auth/logout`, {
     method: 'POST',
-    credentials: 'include', 
+    credentials: 'include',
   });
 
-  if (!res.ok) {
-    throw new Error('Logout failed');
-  }
-
-  return res.json();
+  const data = await response.json();
+  return data;
 }
 
-// ✅ Client-side: Get current user (use in Client Components)
-export async function getMe(): Promise<User | null> {
-  try {
-    const res = await fetch(`${API_URL}/api/auth/me`, {
-      credentials: 'include', 
-      cache: 'no-store',
-    });
+export async function checkAuth() {
+  const response = await fetch(`${API_URL}/api/auth/me`, {
+    credentials: 'include',
+  });
 
-    if (!res.ok) {
-      if (res.status === 401) {
-        return null;
-      }
-      console.error('Get me error: Unexpected status', res.status);
-      return null;
-    }
-
-    const data = await res.json();
-    return data.user;
-  } catch (error) {
-    console.error('Get me error:', error);
-    return null;
-  }
+  const data = await response.json();
+  return data;
 }
