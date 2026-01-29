@@ -370,8 +370,8 @@ useEffect(() => {
         )}
       </div>
 
-            {/* Add Item Modal */}
-            {showAddModal && (
+      {/* Add Item Modal */}
+      {showAddModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <Card className="w-full max-w-lg bg-stone-800 border-stone-700 shadow-2xl">
             <CardHeader className="border-b border-stone-700">

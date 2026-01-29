@@ -6,7 +6,7 @@ import { protect, admin } from '../middleware/auth.js';
 
 const router = express.Router();
 
-/* 
+/** 
 ** @route   POST /api/admin/auth/login
 */
 router.post('/auth/login', async (req, res) => {
@@ -93,8 +93,7 @@ router.post('/auth/login', async (req, res) => {
   }
 });
 
-
-/* 
+/**
 ** @route   GET /api/admin/auth/verify
 ** @desc    Verify admin token and return user details
 ** @access  Private (requires admin token)
@@ -117,6 +116,130 @@ router.get('/auth/verify', protect, admin, async (req, res) => {
     res.status(500).json({ 
       success: false,
       message: 'Server error during verification' 
+    });
+  }
+});
+
+
+/**   
+ *  @route   GET /api/admin/users
+ *  @desc    Get all users
+ *  @access  Private (Admin)
+ */ 
+router.get('/users', protect, admin, async (req, res) => {
+  try {
+    console.log('📋 Fetching all users...');
+    
+    const users = await User.find()
+      .select('-password')  // Don't send passwords
+      .sort({ createdAt: -1 });  // Newest first
+
+    console.log(`✅ Found ${users.length} users`);
+
+    res.json(users);
+  } catch (error) {
+    console.error('❌ Fetch users error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error fetching users' 
+    });
+  }
+});
+
+/**  
+ * @route   PUT /api/admin/users/:id
+ * @desc    Update user role
+ * @access  Private (Admin)
+ */
+router.put('/users/:id', protect, admin, async (req, res) => {
+  try {
+    const { role } = req.body;
+    const userId = req.params.id;
+
+    console.log(`📝 Updating user ${userId} to role: ${role}`);
+
+    // Prevent admin from demoting themselves
+    if (userId === req.user._id.toString() && role !== 'admin') {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Cannot change your own admin role' 
+      });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { role },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'User not found' 
+      });
+    }
+
+    console.log(`✅ User ${userId} role updated to ${role}`);
+
+    res.json(user);
+  } catch (error) {
+    console.error('❌ Update user error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error updating user' 
+    });
+  }
+});
+
+/**
+ * @route   DELETE /api/admin/users/:id
+ * @desc    Delete user
+ * @access  Private (Admin)
+ */
+router.delete('/users/:id', protect, admin, async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    console.log(`🗑️ Attempting to delete user ${userId}`);
+
+    // Prevent admin from deleting themselves
+    if (userId === req.user._id.toString()) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Cannot delete your own account' 
+      });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'User not found' 
+      });
+    }
+
+    // Prevent deleting other admins
+    if (user.role === 'admin') {
+      return res.status(403).json({ 
+        success: false,
+        message: 'Cannot delete admin accounts' 
+      });
+    }
+
+    await User.findByIdAndDelete(userId);
+
+    console.log(`✅ User ${userId} deleted successfully`);
+
+    res.json({
+      success: true,
+      message: 'User deleted successfully',
+    });
+  } catch (error) {
+    console.error('❌ Delete user error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error deleting user' 
     });
   }
 });

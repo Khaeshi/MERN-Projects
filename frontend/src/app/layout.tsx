@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from './context/AuthContext';
-//import { AdminAuthProvider } from './context/AdminAuthContext';
 import { CartProvider } from './context/CartContext';
 import "./globals.css";
 

@@ -23,7 +23,7 @@ export const API_ENDPOINTS = {
   authMe: `${API_BASE}/auth/me`,
   authGoogle: `${API_BASE}/auth/google`,
 
-  users: `${API_BASE}/users`, 
+  users: `${API_BASE}/admin/users`, 
 };
 
 /**

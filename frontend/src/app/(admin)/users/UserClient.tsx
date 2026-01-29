@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import useSWR from 'swr';
 import { API_ENDPOINTS } from '../../lib/api';
 import { 
@@ -13,10 +13,8 @@ import {
   Mail,
   Calendar,
   Trash2,
-  Edit,
   UserCog,
   CheckCircle,
-  XCircle
 } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -54,7 +52,6 @@ export default function UsersClient() {
   const [filterRole, setFilterRole] = useState<'all' | 'admin' | 'customer' | 'user'>('all');
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch users
   const { data: users, error, mutate } = useSWR<User[]>(
@@ -271,8 +268,8 @@ export default function UsersClient() {
         </Card>
       ) : (
         <div className="grid gap-4">
-          {filteredUsers?.map((user) => (
-            <Card key={user.id} className="bg-stone-800 border-stone-700 hover:border-stone-600 transition-colors">
+          {filteredUsers?.map((user, index) => (
+            <Card key={`${user.id}-${index}`} className="bg-stone-800 border-stone-700 hover:border-stone-600 transition-colors">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between gap-4">
                   {/* User Info */}

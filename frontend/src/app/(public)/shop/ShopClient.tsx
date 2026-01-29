@@ -167,7 +167,6 @@ export default function ShopClient() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredItems.map((item: MenuItem, index: number) => { 
                 const isAdded = addedItems.has(item.id);
-                
                 return (
                   <Card
                     key={`${item.id}-${index}`} 
