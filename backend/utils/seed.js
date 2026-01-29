@@ -1,10 +1,9 @@
 // utils/seed.js
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import bcrypt from 'bcryptjs';  // ✅ Added for hashing
+import bcrypt from 'bcryptjs'; 
 import User from '../models/user.js';
-import menuItem from '../models/menuItem.js';  // Note: Your import was 'menuItem' but model is 'MenuItem' - adjust if needed
-
+import menuItem from '../models/menuItem.js';  
 // Load environment variables
 dotenv.config();
 

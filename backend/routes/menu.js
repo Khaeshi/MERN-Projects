@@ -1,11 +1,14 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import MenuItem from '../models/menuItem.js';  
-import { protect } from '../middleware/auth.js';  
+import { protect, admin } from '../middleware/auth.js';  
 
 const router = express.Router();  
 
-// GET /api/menu (fetch all menu items)
+/*
+** GET /api/menu
+** Fetch all menu items
+*/ 
 router.get('/', async (req, res) => {
   try {
     console.log('📋 Fetching menu items...');
@@ -27,14 +30,17 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST /api/menu (add new menu item)
+/*
+** POST /api/menu
+** Add new menu item
+*/ 
+
 router.post('/', protect, async (req, res) => {
   console.log('➕ Adding menu item...');
   console.log('req.body:', req.body);
 
   const { name, price, image, description } = req.body;
 
-  // Basic validation
   if (!name || !price || typeof name !== 'string' || typeof price !== 'number') {
     return res.status(400).json({ 
       success: false, 
@@ -70,7 +76,37 @@ router.post('/', protect, async (req, res) => {
   }
 });
 
-// DELETE /api/menu/:id (delete menu item)
+/*
+** UPDATE /api/menu/:id
+** Update menu item
+*/ 
+
+router.put('/:id', protect, admin, async (req, res) => {
+  try {
+    const { name, price, image, description } = req.body;
+    
+    const menuItem = await MenuItem.findByIdAndUpdate(
+      req.params.id,
+      { name, price, image, description },
+      { new: true, runValidators: true }
+    );
+
+    if (!menuItem) {
+      return res.status(404).json({ message: 'Menu item not found' });
+    }
+
+    res.json(menuItem);
+  } catch (error) {
+    console.error('Error updating menu item:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+/*
+** DELETE /api/menu/:id
+** Delete menu item
+*/ 
+
 router.delete('/:id', protect, async (req, res) => {
   console.log('🗑️ Deleting menu item...');
   console.log('ID:', req.params.id);
@@ -78,7 +114,6 @@ router.delete('/:id', protect, async (req, res) => {
   try {
     const { id } = req.params;
 
-    //  Validate that id is a valid ObjectId string
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ 
         success: false, 

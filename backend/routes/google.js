@@ -5,6 +5,8 @@ import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
+
+
 // Helper function to refresh access token if expired
 async function getValidAccessToken(user) {
   // Check if token is expired or about to expire (within 5 minutes)
@@ -41,7 +43,10 @@ async function getValidAccessToken(user) {
   return user.googleAccessToken;
 }
 
-// Example: Get user's Gmail profile
+/*
+** GET /gmail/profile
+** Get user's Gmail profile
+*/ 
 router.get('/gmail/profile', protect, async (req, res) => {
   try {
     const user = await User.findById(req.user.id)

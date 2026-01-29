@@ -1,47 +1,49 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link  from 'next/link';
-import GoogleLoginButton from '../../components/public/GoogleLoginButton';
-import { login as loginUser } from '../../lib/auth';
-import { useAuth } from '../../context/AuthContext';
+import { API_ENDPOINTS } from '../../lib/api';
 
-
-export default function LoginPage() {
+export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { checkAuth, user } = useAuth();
-
-  // Redirect if already logged in as admin
-  useEffect(() => {
-    if (user && user.role === 'admin') {
-      router.push('/admin/dashboard');
-    }
-  }, [user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-
+  
     try {
-      const data = await loginUser(email, password);
-      console.log('✅ Login successful:', data.user);
-      
-      // Re-check auth to update context
-      await checkAuth();
-      
-      if (data.user.role === 'admin') {
-        router.push('/admin/dashboard');
-      } else {
-        setError('Access denied. Admin privileges required.');
+      console.log('🔍 Attempting login to:', API_ENDPOINTS.adminLogin);
+  
+      const response = await fetch(API_ENDPOINTS.adminLogin, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      const data = await response.json();
+      console.log('📥 Response:', data);
+  
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
       }
+  
+      console.log('✅ Admin login successful:', data.user);
+      localStorage.setItem('adminToken', data.token);
+      console.log('💾 Token stored');
+  
+      router.push('/dashboard');
+      
     } catch (err) {
-      setError((err as Error).message || 'Login failed');
+      console.error('❌ Login error:', err);
+      setError((err as Error).message || 'Invalid credentials');
     } finally {
       setLoading(false);
     }
@@ -53,18 +55,6 @@ export default function LoginPage() {
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-white">Staff Login</h2>
           <p className="text-stone-400 text-sm mt-1">Access the admin dashboard</p>
-        </div>
-
-        {/* Show Google OAuth for staff too (optional) */}
-        <GoogleLoginButton />
-
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-stone-600"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-stone-800 text-stone-400">OR</span>
-          </div>
         </div>
         
         {error && (
@@ -84,8 +74,9 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border border-stone-600 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 bg-stone-700 text-white placeholder-stone-500"
-              placeholder="admin@cafe.com"
+              placeholder="admin@musicschool.com"
               required
+              disabled={loading}
             />
           </div>
 
@@ -101,6 +92,7 @@ export default function LoginPage() {
               className="w-full px-3 py-2 border border-stone-600 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 bg-stone-700 text-white placeholder-stone-500"
               placeholder="••••••••"
               required
+              disabled={loading}
             />
           </div>
 

@@ -1,76 +1,102 @@
-'use client'
+'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useAuth } from '../context/AuthContext';
+import AdminHeader from '../components/admin/AdminHeader';
+import AdminSidebar from '../components/admin/AdminSidebar';
+import { API_ENDPOINTS } from '../lib/api';
+
+interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading, logout } = useAuth();
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
 
+  const isLoginPage = pathname === '/login';
+
   useEffect(() => {
-    // Don't protect the login page itself
-    if (pathname === '/admin/login') return;
+    const checkAuth = async () => {
+      if (isLoginPage) {
+        setIsLoading(false);
+        return;
+      }
 
-    // Redirect to login if not authenticated or not admin
-    if (!loading && (!user || user.role !== 'admin')) {
-      router.push('/admin/login');
-    }
-  }, [user, loading, router, pathname]);
+      const adminToken = localStorage.getItem('adminToken');
 
-  // Show loading state
-  if (loading) {
+      if (!adminToken) {
+        router.push('/login');
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        console.log('📡 Verifying at:', API_ENDPOINTS.adminVerify);
+        
+        const response = await fetch(API_ENDPOINTS.adminVerify, {
+          headers: {
+            'Authorization': `Bearer ${adminToken}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setAdminUser({
+            id: data.user._id || data.user.id,
+            name: data.user.name,
+            email: data.user.email,
+            role: data.user.role,
+          });
+        } else {
+          localStorage.removeItem('adminToken');
+          router.push('/login');
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        localStorage.removeItem('adminToken');
+        router.push('/login');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [pathname, isLoginPage, router]);
+
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-stone-900">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mb-4"></div>
-          <p className="text-stone-400">Loading...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mx-auto"></div>
+          <p className="mt-4 text-stone-400">Verifying credentials...</p>
         </div>
       </div>
     );
   }
 
-  // Don't render admin content on login page
-  if (pathname === '/admin/login') {
+  if (isLoginPage) {
     return <>{children}</>;
   }
 
-  // Show nothing while redirecting
-  if (!user || user.role !== 'admin') {
+  if (!adminUser) {
     return null;
   }
 
   return (
     <div className="min-h-screen bg-stone-900">
-      {/* Admin Header */}
-      <header className="bg-stone-800 border-b border-stone-700 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-xl font-bold text-white">Admin Dashboard</h1>
-            <p className="text-xs text-stone-400">Cafe Management System</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-sm font-medium text-white">{user.name}</p>
-              <p className="text-xs text-stone-400">{user.email}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={logout}
-                className="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Admin Content */}
-      <main className="max-w-7xl mx-auto px-4 py-6">
-        {children}
-      </main>
+      <AdminHeader adminUser={adminUser} />
+      <div className="flex">
+        <AdminSidebar />
+        <main className="flex-1 p-8">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

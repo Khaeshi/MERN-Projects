@@ -10,3 +10,6 @@ OAuth usage on backend:
 ```
 passport passport-google-oauth20 express-session
 ```
+
+To run service:
+ **npm run start**

@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
+      required: function() {
+        // Password required only for admin/traditional login
+        return this.role === 'admin' || !this.googleId;
+      },
       minlength: 6,
       select: false
     },

@@ -1,76 +1,72 @@
-// middleware/auth.js
 import jwt from 'jsonwebtoken';
 import User from '../models/user.js';
 
-// ==================== PROTECT MIDDLEWARE ====================
-// Requires user to be authenticated
+// Protect routes - verify JWT token
 export const protect = async (req, res, next) => {
-  let token;
-
   try {
-    // Check for token in cookies first, then fallback to Authorization header
-    if (req.cookies && req.cookies.token) {
-      token = req.cookies.token;
-    } else if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith('Bearer')
-    ) {
+    let token;
+
+    console.log('🔒 Protect middleware: Checking authorization...');
+    console.log('📋 Headers:', req.headers.authorization ? 'Authorization header present' : 'No authorization header');
+
+    // Check for token in Authorization header (for admin routes)
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
+      console.log('🔑 Token found in Authorization header');
+    }
+    // Check for token in cookies (for regular auth routes)
+    else if (req.cookies.token) {
+      token = req.cookies.token;
+      console.log('🔑 Token found in cookie');
     }
 
-    // Check if token exists
     if (!token) {
+      console.log('❌ No token found');
       return res.status(401).json({
         success: false,
-        message: 'Not authorized to access this route'
+        message: 'Not authorized, no token'
       });
     }
 
+    console.log('🔍 Verifying token...');
+    
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('✅ Token verified for userId:', decoded.userId);
 
     // Get user from token
-    req.user = await User.findById(decoded.id).select('-password -googleAccessToken -googleRefreshToken');
+    req.user = await User.findById(decoded.userId).select('-password');
 
     if (!req.user) {
+      console.log('❌ User not found for userId:', decoded.userId);
       return res.status(401).json({
         success: false,
         message: 'User not found'
       });
     }
 
+    console.log('✅ User authenticated:', req.user.email, 'Role:', req.user.role);
     next();
   } catch (error) {
-    console.error('Auth middleware error:', error);
-    
-    // Specific error messages
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid token'
-      });
-    }
-    
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        success: false,
-        message: 'Token expired'
-      });
-    }
-    
+    console.error('❌ Auth middleware error:', error.message);
     return res.status(401).json({
       success: false,
-      message: 'Not authorized, token failed'
+      message: 'Not authorized, token failed',
+      error: error.message
     });
   }
 };
 
-// ==================== ADMIN MIDDLEWARE ====================
-// Requires user to be authenticated AND have admin role
+// Admin middleware - check if user is admin
 export const admin = (req, res, next) => {
+  console.log('👮 Admin middleware: Checking admin role...');
+  console.log('👤 User role:', req.user?.role);
+  
   if (req.user && req.user.role === 'admin') {
+    console.log('✅ Admin access granted for:', req.user.email);
     next();
   } else {
+    console.log('❌ Admin access denied. User role:', req.user?.role);
     res.status(403).json({
       success: false,
       message: 'Not authorized as admin'
