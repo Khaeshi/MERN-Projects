@@ -41,7 +41,7 @@ export function LoginModal() {
   if (isAdminPage || isAuthPage || !showLoginModal || user) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 backdrop-blur-sm">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm">
       <div className="bg-stone-800 rounded-xl p-8 max-w-md w-full mx-4 shadow-2xl animate-slide-up border border-stone-700">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-white">Welcome to Cafe Prince</h2>
@@ -68,7 +68,7 @@ export function LoginModal() {
         <div className="mt-6 pt-6 border-t border-stone-700">
           <p className="text-sm text-stone-400 text-center">
             Staff member?{' '}
-            <a href="/admin/login" className="text-amber-400 hover:text-amber-300 font-medium">
+            <a href="/login" className="text-amber-400 hover:text-amber-300 font-medium">
               Login here
             </a>
           </p>
