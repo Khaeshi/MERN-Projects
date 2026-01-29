@@ -7,7 +7,9 @@ import generateToken from '../utils/generateToken.js';
 
 const router = express.Router();
 
-// ==================== HELPER FUNCTIONS ====================
+/* 
+** HELPER FUNCTION
+*/
 const setTokenCookie = (res, token) => {
   const cookieOptions = {
     httpOnly: true,
@@ -22,9 +24,10 @@ const setTokenCookie = (res, token) => {
   console.log('🍪 Cookie set successfully');
 };
 
-// ==================== ROUTES ====================
-
-// @route   POST /api/auth/register
+/* 
+** ROUTES   
+** @route   POST /api/auth/register
+*/
 router.post('/register', async (req, res) => {
   const { name, email, password, phone } = req.body;
 
@@ -80,7 +83,9 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// @route   POST /api/auth/login
+/*   
+** @route   POST /api/auth/login
+*/
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -142,7 +147,9 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// @route   POST /api/auth/logout
+/*   
+** @route   POST /api/auth/logout
+*/
 router.post('/logout', (req, res) => {
   try {
     res.clearCookie('token', {
@@ -165,8 +172,10 @@ router.post('/logout', (req, res) => {
   }
 });
 
-// ==================== USER INFO ROUTES ====================
-
+/*   
+** USER INFO ROUTES
+** @route   GET /api/auth/me
+*/
 router.get('/me', optionalAuth, (req, res) => {
   try {
     res.status(200).json({
@@ -201,10 +210,11 @@ router.get('/users', protect, admin, async (req, res) => {
   }
 });
 
-// ==================== GOOGLE OAUTH ROUTES ====================
-
+/*   
+** GOOGLE OAUTH ROUTES
+** @route   GET /google/profile
+*/
 router.get('/google', (req, res, next) => {
-  console.log('📨 Starting Google OAuth flow...');
   const prompt = req.query.prompt || 'consent';
   
   passport.authenticate('google', { 
@@ -214,6 +224,9 @@ router.get('/google', (req, res, next) => {
   })(req, res, next);
 });
 
+/*   
+** @route   GET /google/callback
+*/
 router.get('/google/callback',
   (req, res, next) => {
     console.log('📨 GET /api/auth/google/callback - ENTRY POINT');

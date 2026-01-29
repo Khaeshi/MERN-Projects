@@ -17,9 +17,11 @@ const PORT = process.env.PORT || 5000;
 
 connectDB();
 
-// ==================== MIDDLEWARE (ORDER MATTERS!) ====================
+/**
+ * Middleware (in Order)
+ */
 
-// 1. CORS - Must be first
+
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://192.168.254.105:3000',  
   credentials: true, 
@@ -33,7 +35,9 @@ app.use(requestLogger);
 app.use(passport.initialize());
 
 
-// ==================== ROUTES ====================
+/**
+ * ROUTES
+ */
 
 app.get('/', (req, res) => {
   const dbStatus = mongoose.connection.readyState === 1 ? 'Connected ✅' : 'Disconnected ❌';
@@ -53,15 +57,20 @@ app.get('/', (req, res) => {
     }
   });
 });
-
-// API routes
+/**
+ * Centralized routes
+ */
 app.use('/api', apiRoutes);
 
-// ==================== ERROR HANDLING ====================
+/**
+ * Error Handling
+ */
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-// ==================== START SERVER ====================
+/**
+ * Server start
+ */
 app.listen(PORT, () => {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log(`🚀 Server running on http://localhost:${PORT}`);

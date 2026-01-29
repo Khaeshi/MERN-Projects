@@ -1,5 +1,5 @@
 /*
-* Debugging tool
+* Debugging tool used on passport.js
 */
 import dotenv from 'dotenv';
 dotenv.config();

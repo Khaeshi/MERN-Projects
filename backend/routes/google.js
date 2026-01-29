@@ -5,9 +5,9 @@ import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
-
-
-// Helper function to refresh access token if expired
+/*   
+** Helper function to refresh access token if expired
+*/
 async function getValidAccessToken(user) {
   // Check if token is expired or about to expire (within 5 minutes)
   const isExpired = !user.tokenExpiry || new Date(user.tokenExpiry) <= new Date(Date.now() + 5 * 60 * 1000);

@@ -1,10 +1,15 @@
-// Get base URL from environment (WITHOUT /api)
+/**
+ * Get base URL from environment (WITHOUT /api)
+ */ 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
 
-// Always add /api prefix for all API calls
+/**
+ * Always add /api prefix for all API calls
+ */ 
 export const API_BASE = `${BACKEND_URL}/api`;
-
-// Centralized API endpoints
+/**
+ * Centralized API endpoints
+ */
 export const API_ENDPOINTS = {
   // Admin endpoints
   adminLogin: `${API_BASE}/admin/auth/login`,
@@ -21,8 +26,9 @@ export const API_ENDPOINTS = {
   users: `${API_BASE}/users`, 
 };
 
-
-// Helper for authenticated requests
+/**
+ * Helper for authenticated requests
+ */
 export const fetchWithAuth = async (url: string, options?: RequestInit) => {
   const token = localStorage.getItem('adminToken');
   

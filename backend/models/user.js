@@ -1,4 +1,3 @@
-// models/user.js
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
@@ -71,9 +70,10 @@ const userSchema = new mongoose.Schema(
 userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ googleId: 1 }, { sparse: true });
 
-// ==================== NO PRE-SAVE HOOK ====================
-// We hash passwords manually in the auth routes
-// This prevents conflicts with OAuth user creation
+/*  NO PRE-SAVE HOOK 
+** We hash passwords manually in the auth routes
+** This prevents conflicts with OAuth user creation
+*/
 
 // Instance methods
 userSchema.methods.comparePassword = async function(enteredPassword) {

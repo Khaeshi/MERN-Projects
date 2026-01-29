@@ -6,7 +6,9 @@ import { protect, admin } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// @route   POST /api/admin/auth/login
+/* 
+** @route   POST /api/admin/auth/login
+*/
 router.post('/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -91,9 +93,12 @@ router.post('/auth/login', async (req, res) => {
   }
 });
 
-// @route   GET /api/admin/auth/verify
-// @desc    Verify admin token and return user details
-// @access  Private (requires admin token)
+
+/* 
+** @route   GET /api/admin/auth/verify
+** @desc    Verify admin token and return user details
+** @access  Private (requires admin token)
+*/
 router.get('/auth/verify', protect, admin, async (req, res) => {
   try {
     console.log('✅ Admin verify success for:', req.user.email);

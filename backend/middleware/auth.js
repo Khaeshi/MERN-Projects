@@ -74,9 +74,10 @@ export const admin = (req, res, next) => {
   }
 };
 
-// ==================== OPTIONAL AUTH MIDDLEWARE ====================
-// Does NOT require authentication, but sets req.authUser if token is valid
-// Perfect for pages that should be accessible to both logged-in and logged-out users
+/*   OPTIONAL AUTH MIDDLEWARE 
+** Does NOT require authentication, but sets req.authUser if token is valid
+** Perfect for pages that should be accessible to both logged-in and logged-out users
+*/ 
 export const optionalAuth = async (req, res, next) => {
   let token;
 
@@ -103,7 +104,6 @@ export const optionalAuth = async (req, res, next) => {
   } catch (error) {
     // If token verification fails, just set user to null
     // Don't throw error - this middleware should always succeed
-    console.log('Optional auth: Invalid/expired token, continuing as unauthenticated');
     req.authUser = null;
   }
 

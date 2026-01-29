@@ -33,8 +33,7 @@ router.get('/', async (req, res) => {
 /*
 ** POST /api/menu
 ** Add new menu item
-*/ 
-
+*/
 router.post('/', protect, async (req, res) => {
   console.log('➕ Adding menu item...');
   console.log('req.body:', req.body);
@@ -80,7 +79,6 @@ router.post('/', protect, async (req, res) => {
 ** UPDATE /api/menu/:id
 ** Update menu item
 */ 
-
 router.put('/:id', protect, admin, async (req, res) => {
   try {
     const { name, price, image, description } = req.body;
@@ -106,7 +104,6 @@ router.put('/:id', protect, admin, async (req, res) => {
 ** DELETE /api/menu/:id
 ** Delete menu item
 */ 
-
 router.delete('/:id', protect, async (req, res) => {
   console.log('🗑️ Deleting menu item...');
   console.log('ID:', req.params.id);

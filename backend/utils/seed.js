@@ -1,13 +1,12 @@
-// utils/seed.js
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs'; 
 import User from '../models/user.js';
 import menuItem from '../models/menuItem.js';  
-// Load environment variables
+
 dotenv.config();
 
-// Sample users data (passwords will be hashed below)
+
 const users = [
   {
     name: 'Admin User',
@@ -46,8 +45,11 @@ const users = [
   }
 ];
 
+/**
+ * Mock Data
+ */
 const menuItems = [
-  // Your existing data here (copy from your component)
+
   {
     name: 'Espresso',
     price: 120,
@@ -60,7 +62,6 @@ const menuItems = [
     image: 'https://images.unsplash.com/photo-1712723247648-64a03ba7c333?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYXN0cnklMjBjcm9pc3NhbnR8ZW58MXx8fHwxNzY4NzI4MzYyfDA&ixlib=rb-4.1.0&q=80&w=1080',
     description: 'Buttery flaky croissant'
   },
-  // ... add the rest of your items
 ];
 
 // Connect to MongoDB
