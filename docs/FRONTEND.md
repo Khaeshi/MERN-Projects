@@ -1,4 +1,4 @@
-# Setup.md - Project Setup Guide
+# FRONTEND.md - Frontend Project Setup Guide
 
 ## Overview
 This is a walk through setting up a Next.js project with TypeScript, App Router (in-app routing), and Tailwind CSS.
@@ -10,5 +10,16 @@ This is a walk through setting up a Next.js project with TypeScript, App Router 
 
 ## Step 1: Next.js Project
 1. Open your terminal and run:
-   ```bash
-   npx create-next-app@latest frontend --typescript --tailwind --eslint --app
+```bash
+npx create-next-app@latest frontend --typescript --tailwind --eslint --app
+```
+
+
+## Admin Route
+To access admin route:
+
+```bash
+localhost:3000/login
+```
+
+Enter correct credentials to access admin dashboard.

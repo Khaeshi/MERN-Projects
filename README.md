@@ -99,94 +99,125 @@ Visit: http://localhost:3000
 ## 📁 Project Structure
 ```
 MERN-Project/
-├── backend/                     # Express backend
-│   ├── controllers/             # Route controllers
-│   ├── models/                  # Mongoose models
-│   ├── routes/                  # API routes
-│   ├── middleware/              # Custom middleware
-│   ├── utils/                   # Utility functions
-│   └── server.ts                # Entry point
+backend/
+│   ├── config/                         # Database, OAuth, AWS S3 configuration
+│   │   ├── database.js                 
+│   │   ├── passport.js
+│   │   ├── passportdebug.js
+│   │   └── s3Config.js
+│   │
+│   ├── controllers/                    # Controllers
+│   │   └── authController.js
+│   │
+│   ├── middleware/                     # Middleware
+│   │   ├── auth.js
+│   │   └── errorHandler.js
+│   │
+│   ├── models/                         # Models
+│   │   ├── menuitem.js
+│   │   └── user.js
+│   │
+│   ├── node_modules/                   # Node modules
+│   │
+│   ├── routes/                         # Routes
+│   │   ├── admin.js
+│   │   ├── auth.js
+│   │   ├── google.js
+│   │   ├── index.js                    # Centralized Routes
+│   │   ├── menu.js
+│   │   └── uploadRoutes.js             # AWS S3 image uploading
+│   │
+│   ├── utils/                          # Seeding admin
+│   │   ├── generateToken.js
+│   │   └── seed.js
+│   │
+│   ├── .env                            
+│   ├── .env.example                    
+│   ├── index.js                        # Also known as server
+│   ├── package-lock.json
+│   └── package.json
 │
-├── docs/                        # Documentation
-│    ├── API.md
-│    ├── DATABASE.md
-│    ├── DEPLOYMENT.md
+├── docs/                                 # Documentation
+│    ├── ADMINROUTE.md
 │    ├── AGENTS_USAGE.md
 │    ├── AGENTS.md
+│    ├── BACKEND.md
+│    ├── DATABASE.md
+│    ├── DEPLOYMENT.md
 │    └── SETUP.md
 │    
 ├── frontend/
-    └── src/
-    ├── app/
-    │   ├── layout.tsx                    # ROOT LAYOUT (see below)
-    │   ├── globals.css
-    │   │
-    │   ├── (public)/                     # 👥 CUSTOMER ROUTES
-    │   │   ├── layout.tsx                # PUBLIC LAYOUT (see below)
-    │   │   │
-    │   │   ├── page.tsx                  # HOME PAGE (metadata)
-    │   │   ├── HomeClient.tsx            # Home client component
-    │   │   │
-    │   │   └── shop/
-    │   │       ├── page.tsx              # SHOP PAGE (metadata)
-    │   │       └── ShopClient.tsx        # Shop client component
-    │   │
-    │   ├── (auth)/                       # 🔐 AUTH ROUTES
-    │   │   ├── layout.tsx                # AUTH LAYOUT (minimal)
-    │   │   └── auth/
-    │   │       └── success/
-    │   │           └── page.tsx          # OAuth success page
-    │   │
-    │   └── (admin)/                      # 👨‍💼 ADMIN ROUTES
-    │       ├── layout.tsx                # ADMIN LAYOUT (protected)
-    │       └── admin/
-    │           ├── login/
-    │           │   └── page.tsx          # Admin login (no metadata needed)
-    │           │
-    │           ├── dashboard/
-    │           │   ├── page.tsx          # Dashboard (metadata)
-    │           │   └── DashboardClient.tsx
-    │           │
-    │           ├── menu/
-    │           │   ├── page.tsx
-    │           │   └── MenuClient.tsx
-    │           │
-    │           ├── orders/
-    │           │   ├── page.tsx
-    │           │   └── OrdersClient.tsx
-    │           │
-    │           └── users/
-    │               ├── page.tsx
-    │               └── UsersClient.tsx
-    │
-    ├── components/
-    │   ├── public/
-    │   │   ├── Header.tsx
-    │   │   ├── Footer.tsx
-    │   │   ├── LoginModal.tsx
-    │   │   └── GoogleLoginButton.tsx
-    │   │
-    │   ├── admin/
-    │   │   ├── AdminHeader.tsx
-    │   │   └── AdminSidebar.tsx
-    │   │
-    │   ├── features/
-    │   │   └── Cart/
-    │   │       ├── CartModal.tsx
-    │   │       └── CartSidebar.tsx
-    │   │
-    │   └── ui/
-    │       ├── Button.tsx
-    │       └── Input.tsx
-    │
-    ├── context/
-    │   ├── AuthContext.tsx
-    │   ├── AdminAuthContext.tsx
-    │   └── CartContext.tsx
-    │
-    └── lib/
-        ├── api.ts   
-        └── auth.ts
+│   └── src/
+│       ├── app/
+│       │   ├── layout.tsx                    # ROOT LAYOUT (see below)
+│       │   ├── globals.css
+│       │   │
+│       │   ├── (public)/                     # 👥 CUSTOMER ROUTES
+│       │   │   ├── layout.tsx                # PUBLIC LAYOUT (see below)
+│       │   │   │
+│       │   │   ├── page.tsx                  # HOME PAGE (metadata)
+│       │   │   ├── HomeClient.tsx            # Home client component
+│       │   │   │
+│       │   │   └── shop/
+│       │   │       ├── page.tsx              # SHOP PAGE (metadata)
+│       │   │       └── ShopClient.tsx        # Shop client component
+│       │   │
+│       │   ├── (auth)/                       # 🔐 AUTH ROUTES
+│       │   │   ├── layout.tsx                # AUTH LAYOUT (minimal)
+│       │   │   └── auth/
+│       │   │       └── success/
+│       │   │           └── page.tsx          # OAuth success page
+│       │   │
+│       │   └── (admin)/                      # 👨‍💼 ADMIN ROUTES
+│       │       ├── layout.tsx                # ADMIN LAYOUT (protected)
+│       │       └── admin/
+│       │           ├── login/
+│       │           │   └── page.tsx          # Admin login (no metadata needed)
+│       │           │
+│       │           ├── dashboard/
+│       │           │   ├── page.tsx          # Dashboard (metadata)
+│       │           │   └── DashboardClient.tsx
+│       │           │
+│       │           ├── menu/
+│       │           │   ├── page.tsx
+│       │           │   └── MenuClient.tsx
+│       │           │
+│       │           ├── orders/
+│       │           │   ├── page.tsx
+│       │           │   └── OrdersClient.tsx
+│       │           │
+│       │           └── users/
+│       │               ├── page.tsx
+│       │               └── UsersClient.tsx
+│       │
+│       ├── components/
+│       │   ├── public/
+│       │   │   ├── Header.tsx
+│       │   │   ├── Footer.tsx
+│       │   │   ├── LoginModal.tsx
+│       │   │   └── GoogleLoginButton.tsx
+│       │   │
+│       │   ├── admin/
+│       │   │   ├── AdminHeader.tsx
+│       │   │   └── AdminSidebar.tsx
+│       │   │
+│       │   ├── features/
+│       │   │   └── Cart/
+│       │   │       ├── CartModal.tsx
+│       │   │       └── CartSidebar.tsx
+│       │   │
+│       │   └── ui/
+│       │       ├── Button.tsx
+│       │       └── Input.tsx
+│       │
+│       ├── context/
+│       │   ├── AuthContext.tsx
+│       │   ├── AdminAuthContext.tsx
+│       │   └── CartContext.tsx
+│       │
+│       └── lib/
+│           ├── api.ts   
+│           └── auth.ts
 ├── .gitignore
 ├── Dockerfile
 ├── nginx.conf
