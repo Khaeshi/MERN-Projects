@@ -30,6 +30,7 @@ interface MenuItem {
   price: number; 
   image: string; 
   description: string; 
+  isAvailable: boolean;
 }
 
 const fetcher = (url: string) => {
@@ -112,6 +113,7 @@ export default function MenuClient() {
           price: editingItem.price,
           image: editingItem.image,
           description: editingItem.description,
+          isAvailable: editingItem.isAvailable,
         }),
       });
 
@@ -541,6 +543,52 @@ export default function MenuClient() {
                 />
               </div>
 
+              {/* Availability Toggle */}
+              <div className="space-y-2 border-t border-stone-700 pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-stone-300 text-base font-semibold">
+                      Availability Status
+                    </Label>
+                    <p className="text-sm text-stone-500 mt-1">
+                      Toggle to mark this item as available or sold out
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setEditingItem({ 
+                      ...editingItem, 
+                      isAvailable: !editingItem.isAvailable 
+                    })}
+                    className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                      editingItem.isAvailable 
+                        ? 'bg-green-600' 
+                        : 'bg-stone-600'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                        editingItem.isAvailable ? 'translate-x-7' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+                <div className={`mt-2 px-3 py-2 rounded-lg ${
+                  editingItem.isAvailable 
+                    ? 'bg-green-900/20 border border-green-700' 
+                    : 'bg-red-900/20 border border-red-700'
+                }`}>
+                  <p className={`text-sm font-medium ${
+                    editingItem.isAvailable ? 'text-green-300' : 'text-red-300'
+                  }`}>
+                    {editingItem.isAvailable 
+                      ? '✓ Available - Customers can order this item' 
+                      : '✗ Sold Out - This item will be hidden from the shop'}
+                  </p>
+                </div>
+              </div>
+              {/* Edit Item Button */}
+
               <div className="flex gap-3 pt-4">
                 <Button 
                   variant="outline"
@@ -576,7 +624,7 @@ export default function MenuClient() {
         </div>
       )}
 
-      {/* Image Gallery Modal - Placed outside other modals */}
+      {/* Image Gallery Modal - for AWS s3 image upload*/}
       {showImageGallery && (
         <ImageGallery
           onSelectImage={(url) => {

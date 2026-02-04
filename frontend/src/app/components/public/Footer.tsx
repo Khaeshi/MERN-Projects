@@ -28,12 +28,6 @@ export function Footer() {
 
           {/* Middle - Address and Email */}
           <div className="text-center text-sm md:text-base space-y-3">
-            <p className="text-gray-300">
-              Block 21 Lot 4 Italy St. EP Housing<br />
-              Brgy Pinagsama Phase 2, Taguig, Philippines
-            </p>
-            <p className="text-lg">0915-895-6883</p>
-            <p className="text-gray-300">cafeprince@gmail.com</p>
           </div>
 
           {/* Right - Social Media Icons */}

@@ -20,6 +20,7 @@ interface ApiMenuItem {
   price: number;
   image: string;
   description: string;
+  isAvailable: boolean;
 }
 
 interface MenuItem {
@@ -28,6 +29,7 @@ interface MenuItem {
   price: number;
   image: string;
   description: string;
+  isAvailable: boolean;
 }
 
 // Fetcher function for SWR
@@ -53,6 +55,7 @@ export default function ShopClient() {
     price: item.price,
     image: item.image,
     description: item.description,
+    isAvailable: item.isAvailable,
   })) : [];
 
   const filteredItems = menuItems.filter(item =>
@@ -167,10 +170,13 @@ export default function ShopClient() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredItems.map((item: MenuItem, index: number) => { 
                 const isAdded = addedItems.has(item.id);
+                const isAvailable = item.isAvailable;
                 return (
                   <Card
                     key={`${item.id}-${index}`} 
-                    className="group overflow-hidden hover:shadow-2xl transition-all duration-300 border-stone-700 bg-stone-800"
+                    className={`group overflow-hidden hover:shadow-2xl transition-all duration-300 border-stone-700 bg-stone-800 ${
+                      !isAvailable ? 'opacity-50' : '' 
+                    }`}
                   >
                     {/* Image Container */}
                     <div className="relative aspect-[4/3] overflow-hidden bg-stone-700">
@@ -188,6 +194,12 @@ export default function ShopClient() {
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-stone-900/60 via-stone-900/0 to-stone-900/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       
+                      {!isAvailable && (
+                        <div className="absolute inset-0 bg-black/70 flex items-center justify-center text-center z-10">
+                          <p className="text-white text-sm mt-2">Currently Unavailable</p>
+                        </div>
+                      )}
+
                       {/* Floating Badge */}
                       <div className="absolute top-3 right-3">
                         <Badge className="bg-amber-600 text-white font-semibold px-3 py-1">
@@ -218,16 +230,21 @@ export default function ShopClient() {
                           </span>
                         </div>
                         
-                        <Button
+                         <Button
                           onClick={() => handleAddToCart(item)}
                           size="lg"
+                          disabled={!isAvailable}  // ← Disable if not available
                           className={`transition-all duration-300 ${
-                            isAdded 
-                              ? 'bg-green-600 hover:bg-green-700' 
-                              : 'bg-amber-600 hover:bg-amber-700'
+                            !isAvailable
+                              ? 'bg-stone-600 cursor-not-allowed opacity-50'
+                              : isAdded 
+                                ? 'bg-green-600 hover:bg-green-700' 
+                                : 'bg-amber-600 hover:bg-amber-700'
                           } text-white`}
                         >
-                          {isAdded ? (
+                          {!isAvailable ? (
+                            <>Sold Out</>
+                          ) : isAdded ? (
                             <>
                               <Check className="w-4 h-4 mr-2" />
                               Added

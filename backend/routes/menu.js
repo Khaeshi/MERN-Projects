@@ -38,7 +38,7 @@ router.post('/', protect, async (req, res) => {
   console.log('➕ Adding menu item...');
   console.log('req.body:', req.body);
 
-  const { name, price, image, description } = req.body;
+  const { name, price, image, description, isAvailable } = req.body;
 
   if (!name || !price || typeof name !== 'string' || typeof price !== 'number') {
     return res.status(400).json({ 
@@ -56,7 +56,7 @@ router.post('/', protect, async (req, res) => {
   }
 
   try {
-    const newItem = new MenuItem({ name, price, image: image || '', description });
+    const newItem = new MenuItem({ name, price, image: image || '', description, isAvailable });
     await newItem.save();
 
     console.log('✅ Menu item added:', newItem);
@@ -81,11 +81,11 @@ router.post('/', protect, async (req, res) => {
 */ 
 router.put('/:id', protect, admin, async (req, res) => {
   try {
-    const { name, price, image, description } = req.body;
+    const { name, price, image, description, isAvailable } = req.body;
     
     const menuItem = await MenuItem.findByIdAndUpdate(
       req.params.id,
-      { name, price, image, description },
+      { name, price, image, description, isAvailable },
       { new: true, runValidators: true }
     );
 

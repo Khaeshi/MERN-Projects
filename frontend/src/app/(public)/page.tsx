@@ -82,31 +82,86 @@ export default function Home() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-12 md:py-16 px-4 md:px-6 bg-stone-900">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-8 tracking-wide text-white">
-            VISIT US
-          </h2>
-          <div className="space-y-4 text-base md:text-lg text-stone-300">
-            <p>
-              <span className="font-semibold text-amber-400">Address:</span><br />
-              Black 21 Lot 4 Italy St. EP Housing<br />
+<section id="contact" className="py-12 md:py-16 px-4 md:px-6 bg-stone-900">
+  <div className="max-w-6xl mx-auto">
+    <h2 className="text-3xl md:text-4xl font-bold mb-8 tracking-wide text-white text-center">
+      VISIT US
+    </h2>
+    
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      {/* Contact Information */}
+      <div className="space-y-6 text-base md:text-lg text-stone-300">
+        <div className="bg-stone-800 border border-stone-700 rounded-lg p-6">
+          <p className="mb-4">
+            <span className="font-semibold text-amber-400 text-xl">Address:</span><br />
+            <span className="text-stone-200">
+              Block 21 Lot 4 Italy St. EP Housing<br />
               Brgy Pinagsama Phase 2, Taguig, Philippines
-            </p>
-            <p>
-              <span className="font-semibold text-amber-400">Phone:</span><br />
+            </span>
+          </p>
+          
+          <p className="mb-4">
+            <span className="font-semibold text-amber-400 text-xl">Phone:</span><br />
+            <a href="tel:09158956883" className="text-stone-200 hover:text-amber-400 transition-colors">
               0915-895-6883
-            </p>
-            <p>
-              <span className="font-semibold text-amber-400">Email:</span><br />
+            </a>
+          </p>
+          
+          <p className="mb-4">
+            <span className="font-semibold text-amber-400 text-xl">Email:</span><br />
+            <a href="mailto:cafeprince@gmail.com" className="text-stone-200 hover:text-amber-400 transition-colors">
               cafeprince@gmail.com
-            </p>
-            <p className="pt-4 text-sm text-stone-400">
-              Open Daily: 7:00 AM - 10:00 PM
-            </p>
+            </a>
+          </p>
+          
+          <div className="pt-4 border-t border-stone-700">
+            <p className="text-amber-400 font-semibold mb-2">Operating Hours:</p>
+            <p className="text-stone-200">Open Daily: 7:00 AM - 10:00 PM</p>
           </div>
         </div>
-      </section>
+
+        {/* Additional Info */}
+        <div className="bg-amber-900/20 border border-amber-700/50 rounded-lg p-4">
+          <p className="text-sm text-amber-200">
+            ☕ We&#39re located in the heart of Taguig City, easily accessible from major roads. 
+            Free parking available for customers!
+          </p>
+        </div>
+      </div>
+
+      {/* Google Maps Embed */}
+      <div className="w-full">
+        <div className="relative w-full h-[450px] rounded-lg overflow-hidden border-2 border-stone-700 shadow-xl">
+          <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15449.805030619491!2d121.03342590781251!3d14.5161615!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397cf6974c7f3d7%3A0x91fe5af60079d879!2sBLK%202%20LOT%204%20PHASE%201%20EP%20AFP%20Housing%20BRGY%20PINAGSAMA%20TAGUIG%20CITY!5e0!3m2!1sen!2sph!4v1770129263323!5m2!1sen!2sph" 
+            width="100%" 
+            height="100%" 
+            style={{ border: 0 }} 
+            allowFullScreen 
+            loading="lazy" 
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Cafe Prince Location"
+          />
+        </div>
+        
+        {/* Directions Link */}
+        <div className="mt-4 text-center">
+          <a 
+            href="https://www.google.com/maps/dir/?api=1&destination=14.5161615,121.03342590781251"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg transition-colors shadow-lg"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+            </svg>
+            Get Directions
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
     </>
   );
 }
