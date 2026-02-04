@@ -109,7 +109,7 @@ export default function ShopClient() {
     <div className="min-h-screen bg-stone-900">
       {/* Header Section */}
       <div className="bg-stone-800 border-b border-stone-700 top-0 z-10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
+        <div className="max-w-5xl mx-auto px-6 md:px-8 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h1 className="text-4xl mb-2 text-white">Our Menu</h1>
@@ -153,7 +153,7 @@ export default function ShopClient() {
       </div>
 
       {/* Menu Grid */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-12">
+      <div className="max-w-5xl mx-auto px-6 md:px-8 py-12">
         {filteredItems.length === 0 ? (
           <div className="text-center py-20">
             <div className="bg-stone-800 rounded-lg shadow-sm p-12 max-w-md mx-auto border-stone-700">
@@ -180,7 +180,7 @@ export default function ShopClient() {
                   >
                     {/* Image Container */}
                     <div className="relative aspect-[4/3] overflow-hidden bg-stone-700">
-                      {item.image && item.image.trim() !== '' && item.image.startsWith('/products/') ? (
+                      {item.image && item.image.trim() !== '' ? (
                         <Image
                           src={item.image}
                           alt={item.name}

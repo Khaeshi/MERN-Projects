@@ -54,13 +54,22 @@ const menuItems = [
     name: 'Espresso',
     price: 120,
     image: 'https://images.unsplash.com/photo-1564676677001-92e8f1a0df30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2ZmZWUlMjBkcmluayUyMGN1cHxlbnwxfHx8fDE3Njg3ODQzMDV8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    description: 'Rich and bold espresso shot'
+    description: 'Rich and bold espresso shot',
+    isAvailable: true
   },
   {
     name: 'Croissant',
     price: 95,
     image: 'https://images.unsplash.com/photo-1712723247648-64a03ba7c333?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYXN0cnklMjBjcm9pc3NhbnR8ZW58MXx8fHwxNzY4NzI4MzYyfDA&ixlib=rb-4.1.0&q=80&w=1080',
-    description: 'Buttery flaky croissant'
+    description: 'Buttery flaky croissant',
+    isAvailable: true
+  },
+  {
+    name: 'Latte',
+    price: 150,
+    image: 'https://images.unsplash.com/photo-1564676677001-92e8f1a0df30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2ZmZWUlMjBkcmluayUyMGN1cHxlbnwxfHx8fDE3Njg3ODQzMDV8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    description: 'Creamy and smooth latte',
+    isAvailable: true
   },
 ];
 

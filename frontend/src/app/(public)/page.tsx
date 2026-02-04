@@ -36,7 +36,7 @@ export default function Home() {
           <h1 className="text-white text-4xl md:text-5xl lg:text-6xl font-bold mb-8 tracking-wide">
             DISCOVER THE<br />PERFECT BLEND
           </h1>
-          <button className="bg-amber-600 hover:bg-amber-700 text-white px-8 md:px-12 py-3 md:py-4 text-base md:text-lg transition-colors shadow-lg">
+          <button className="bg-amber-600 hover:bg-amber-700 text-white rounded-lg px-8 md:px-12 py-3 md:py-4 text-base md:text-lg transition-colors shadow-lg">
             Order Now
           </button>
         </div>
@@ -123,7 +123,7 @@ export default function Home() {
         {/* Additional Info */}
         <div className="bg-amber-900/20 border border-amber-700/50 rounded-lg p-4">
           <p className="text-sm text-amber-200">
-            ☕ We&#39re located in the heart of Taguig City, easily accessible from major roads. 
+            ☕ We&#39;re located in the heart of Taguig City, easily accessible from major roads. 
             Free parking available for customers!
           </p>
         </div>

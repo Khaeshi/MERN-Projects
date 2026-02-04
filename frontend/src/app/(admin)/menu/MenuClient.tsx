@@ -150,7 +150,8 @@ export default function MenuClient() {
 
   // Open edit modal
   const handleEdit = (item: MenuItem) => {
-    setEditingItem({ ...item });
+    setEditingItem({ ...item, isAvailable: item.isAvailable ?? true
+     });
     setShowEditModal(true);
   };
 
@@ -556,10 +557,14 @@ export default function MenuClient() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => setEditingItem({ 
-                      ...editingItem, 
-                      isAvailable: !editingItem.isAvailable 
-                    })}
+                    onClick={() => {
+                      const newAvailability = !editingItem.isAvailable;
+                      console.log('🔄 Toggling availability:', editingItem.isAvailable, '→', newAvailability);
+                      setEditingItem({ 
+                        ...editingItem, 
+                        isAvailable: newAvailability
+                      });
+                    }}
                     className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
                       editingItem.isAvailable 
                         ? 'bg-green-600' 
@@ -587,8 +592,8 @@ export default function MenuClient() {
                   </p>
                 </div>
               </div>
-              {/* Edit Item Button */}
 
+              {/* Edit Item Button */}
               <div className="flex gap-3 pt-4">
                 <Button 
                   variant="outline"

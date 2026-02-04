@@ -6,8 +6,8 @@ import { protect, admin } from '../middleware/auth.js';
 const router = express.Router();  
 
 /*
-** GET /api/menu
-** Fetch all menu items
+ * GET /api/menu
+ * Fetch all menu items
 */ 
 router.get('/', async (req, res) => {
   try {
@@ -19,6 +19,7 @@ router.get('/', async (req, res) => {
       price: item.price,
       image: item.image,
       description: item.description,
+      isAvailable: item.isAvailable ?? true, 
     }));
     res.json(items);
   } catch (error) {
@@ -31,10 +32,10 @@ router.get('/', async (req, res) => {
 });
 
 /*
-** POST /api/menu
-** Add new menu item
+ * POST /api/menu
+ * Add new menu item
 */
-router.post('/', protect, async (req, res) => {
+router.post('/', protect, admin, async (req, res) => {
   console.log('➕ Adding menu item...');
   console.log('req.body:', req.body);
 
@@ -47,16 +48,22 @@ router.post('/', protect, async (req, res) => {
     });
   }
 
-  // Validate image (optional, for relative paths)
-  if (image && (!image.startsWith('/products/') || image.includes('http'))) {
+  //  validation -  accepts S3 URLs or empty string
+  if (image && typeof image !== 'string') {
     return res.status(400).json({ 
       success: false, 
-      message: 'Image must be a relative path starting with /products/ or left empty' 
+      message: 'Image must be a valid URL string or left empty' 
     });
   }
 
   try {
-    const newItem = new MenuItem({ name, price, image: image || '', description, isAvailable });
+    const newItem = new MenuItem({ 
+      name, 
+      price, 
+      image: image || '', 
+      description: description || '',
+      isAvailable: isAvailable ?? true 
+    });
     await newItem.save();
 
     console.log('✅ Menu item added:', newItem);
@@ -76,12 +83,15 @@ router.post('/', protect, async (req, res) => {
 });
 
 /*
-** UPDATE /api/menu/:id
-** Update menu item
+ * PUT /api/menu/:id
+ * Update menu item
 */ 
 router.put('/:id', protect, admin, async (req, res) => {
   try {
     const { name, price, image, description, isAvailable } = req.body;
+    
+    console.log('📝 Updating menu item:', req.params.id);
+    console.log('Update data:', { name, price, image, description, isAvailable });
     
     const menuItem = await MenuItem.findByIdAndUpdate(
       req.params.id,
@@ -90,21 +100,29 @@ router.put('/:id', protect, admin, async (req, res) => {
     );
 
     if (!menuItem) {
-      return res.status(404).json({ message: 'Menu item not found' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'Menu item not found' 
+      });
     }
 
+    console.log('✅ Menu item updated:', menuItem);
     res.json(menuItem);
   } catch (error) {
-    console.error('Error updating menu item:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('❌ Error updating menu item:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
 /*
-** DELETE /api/menu/:id
-** Delete menu item
+ * DELETE /api/menu/:id
+ * Delete menu item
 */ 
-router.delete('/:id', protect, async (req, res) => {
+router.delete('/:id', protect, admin, async (req, res) => {
   console.log('🗑️ Deleting menu item...');
   console.log('ID:', req.params.id);
 
@@ -141,4 +159,4 @@ router.delete('/:id', protect, async (req, res) => {
   }
 });
 
-export default router;  
+export default router;
